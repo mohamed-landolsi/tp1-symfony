@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Service\TextFormatter;
+
 
 final class ArticlesController extends AbstractController
 {
@@ -28,15 +30,17 @@ final class ArticlesController extends AbstractController
 
     #[Route('/articles/nouveau', name: 'app_article_nouveau')]
     #[IsGranted('ROLE_USER')]
-    public function nouveau(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+    public function nouveau(Request $request, EntityManagerInterface $em, MailerInterface $mailer, TextFormatter $formatter): Response
     {
         $article = new Article();
         $article->setAuteurUser($this->getUser());
         
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
+
         
         if ($form->isSubmitted() && $form->isValid()) {
+            $article->setContenu($formatter->filter($article->getContenu()));
             $em->persist($article);
             $em->flush();
 
