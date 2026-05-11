@@ -56,6 +56,9 @@ class Article
     #[ORM\ManyToOne(inversedBy: 'articles')]
     private ?Categorie $categorie = null;
 
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    private ?User $auteur_user = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -129,6 +132,18 @@ class Article
     public function setCategorie(?Categorie $categorie): static
     {
         $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getAuteurUser(): ?User
+    {
+        return $this->auteur_user;
+    }
+
+    public function setAuteurUser(?User $auteur_user): static
+    {
+        $this->auteur_user = $auteur_user;
 
         return $this;
     }
