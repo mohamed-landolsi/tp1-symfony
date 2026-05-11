@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 final class ArticlesController extends AbstractController
 {
@@ -26,7 +28,7 @@ final class ArticlesController extends AbstractController
 
     #[Route('/articles/nouveau', name: 'app_article_nouveau')]
     #[IsGranted('ROLE_USER')]
-    public function nouveau(Request $request, EntityManagerInterface $em): Response
+    public function nouveau(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         $article = new Article();
         $article->setAuteurUser($this->getUser());
@@ -37,8 +39,22 @@ final class ArticlesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($article);
             $em->flush();
+
+            // Send notification email
+            $email = (new Email())
+                ->from('noreply@tp1symfony.com')
+                ->to('lndlsmhmd@gmail.com')
+                ->subject('Nouvel article publié : ' . $article->getTitre())
+                ->html('
+                    <h1>Nouvel article créé !</h1>
+                    <p><strong>Titre :</strong> ' . $article->getTitre() . '</p>
+                    <p><strong>Auteur :</strong> ' . $article->getAuteur() . '</p>
+                    <p><strong>Date :</strong> ' . $article->getDateCreation()->format('d/m/Y') . '</p>
+                ');
+
+            $mailer->send($email);
             
-            $this->addFlash('success', 'Article créé avec succès !');
+            $this->addFlash('success', 'Article créé et notification envoyée !');
             return $this->redirectToRoute('app_articles');
         }
         
