@@ -23,15 +23,17 @@
 
     {# Boutons d'action #}
     <div class="d-flex gap-2 align-items-center">
-        <a href="{{ path('app_article_modifier', {id: article.id}) }}" class="btn btn-primary">
-            ✏️ Modifier
-        </a>
-        
-        <form method="post" action="{{ path('app_article_supprimer', {id: article.id}) }}"
-              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');" class="d-inline">
-            <input type="hidden" name="_token" value="{{ csrf_token('supprimer_' ~ article.id) }}">
-            <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
-        </form>
+        {% if app.user and (app.user == article.auteurUser or is_granted('ROLE_ADMIN')) %}
+            <a href="{{ path('app_article_modifier', {id: article.id}) }}" class="btn btn-primary">
+                ✏️ Modifier
+            </a>
+            
+            <form method="post" action="{{ path('app_article_supprimer', {id: article.id}) }}"
+                onsubmit="return confirm('Êtes-vous sûr ?');" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('supprimer_' ~ article.id) }}">
+                <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
+            </form>
+        {% endif %}
 
         <a href="{{ path('app_articles') }}" class="btn btn-outline-secondary">
             ← Retour à la liste
