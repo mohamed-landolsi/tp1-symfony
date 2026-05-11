@@ -6,6 +6,7 @@ use App\Repository\ArticleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 class Article
@@ -13,6 +14,7 @@ class Article
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['article:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -23,6 +25,7 @@ class Article
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
     )]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -31,6 +34,7 @@ class Article
         min: 20,
         minMessage: 'Le contenu doit contenir au moins {{ limit }} caractères.'
     )]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $contenu = null;
 
     #[ORM\Column(length: 100)]
@@ -44,16 +48,20 @@ class Article
         pattern: '/^[a-zA-ZÀ-ÿ\s\-]+$/',
         message: 'Le nom de l\'auteur ne peut contenir que des lettres, espaces et tirets.'
     )]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $auteur = null;
 
     #[ORM\Column]
     #[Assert\NotNull(message: 'La date de création est obligatoire.')]
+    #[Groups(['article:read'])]
     private ?\DateTime $dateCreation = null;
 
     #[ORM\Column]
+    #[Groups(['article:read', 'article:write'])]
     private ?bool $publie = null;
 
     #[ORM\ManyToOne(inversedBy: 'articles')]
+    #[Groups(['article:read'])]
     private ?Categorie $categorie = null;
 
     #[ORM\ManyToOne(inversedBy: 'articles')]
@@ -72,7 +80,6 @@ class Article
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
-
         return $this;
     }
 
@@ -84,7 +91,6 @@ class Article
     public function setContenu(string $contenu): static
     {
         $this->contenu = $contenu;
-
         return $this;
     }
 
@@ -96,7 +102,6 @@ class Article
     public function setAuteur(string $auteur): static
     {
         $this->auteur = $auteur;
-
         return $this;
     }
 
@@ -108,7 +113,6 @@ class Article
     public function setDateCreation(\DateTime $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
-
         return $this;
     }
 
@@ -120,7 +124,6 @@ class Article
     public function setPublie(bool $publie): static
     {
         $this->publie = $publie;
-
         return $this;
     }
 
@@ -132,7 +135,6 @@ class Article
     public function setCategorie(?Categorie $categorie): static
     {
         $this->categorie = $categorie;
-
         return $this;
     }
 
@@ -144,7 +146,6 @@ class Article
     public function setAuteurUser(?User $auteur_user): static
     {
         $this->auteur_user = $auteur_user;
-
         return $this;
     }
 }
